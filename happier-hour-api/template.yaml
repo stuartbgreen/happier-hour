@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  happier-hour-api
+
+  API for the Happier Hour mobile application
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Api:
+    OpenApiVersion: 3.0.3
+    #Cors: '*'
+  Function:
+    Timeout: 10
+    VpcConfig:
+      SecurityGroupIds:
+        - sg-e573eb82
+      SubnetIds:
+        - subnet-cfcd4683
+        - subnet-dddefea7
+
+Resources:           
+  HappierHourApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: happier-hour-api
+      StageName: happier-hour
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: endpoints/hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs10.x
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HappierHourApiGateway
+            Path: /v1/hello
+            Method: get
+
+  # Copy this for every new endpoint you want to add
+  EstablishmentsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: endpoints/establishments/
+      Handler: index.lambdaHandler
+      Runtime: nodejs10.x
+      Events:
+        AllEstablishments:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HappierHourApiGateway
+            Path: /v1/establishments #change this accordingly
+            Method: any 
+        AnyEstablishments:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HappierHourApiGateway
+            Path: /v1/establishments/{proxy+}  #change this accordingly
+            Method: any
+
+  # Copy this for every new endpoint you want to add
+  SpecialsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: endpoints/specials/
+      Handler: index.lambdaHandler
+      Runtime: nodejs10.x
+      Events:
+        AllSpecials:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HappierHourApiGateway
+            Path: /v1/specials #change this accordingly
+            Method: any
+        AnySpecials:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref HappierHourApiGateway
+            Path: /v1/specials/{proxy+}  #change this accordingly
+            Method: any
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for all functions"
+    Value: !Sub "https://${HappierHourApiGateway}.execute-api.${AWS::Region}.amazonaws.com/happier-hour/v1/"

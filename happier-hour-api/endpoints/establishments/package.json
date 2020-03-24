@@ -1,0 +1,14 @@
+{
+  "name": "happier-hour-api-establishments",
+  "version": "1.0.0",
+  "description": "Establishments API endpoint.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serverless-mysql": "^1.5.3"
+  }
+}
